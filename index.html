@@ -1,0 +1,20 @@
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour
+{
+    // سرعة الحركة
+    public float moveSpeed = 5f;
+
+    void Update()
+    {
+        // قراءة المدخلات من الأسهم أو أزرار WASD
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        // حساب اتجاه الحركة في الفضاء ثلاثي الأبعاد (محاور X و Z)
+        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+
+        // تحريك الكائن بناءً على السرعة والوقت المنقضي
+        transform.Translate(movement * moveSpeed * Time.deltaTime, Space.World);
+    }
+}
