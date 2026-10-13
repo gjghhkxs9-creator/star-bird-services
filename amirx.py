@@ -8,22 +8,7 @@ def home():
         with open('index.html', 'r', encoding='utf-8') as f:
             return f.read()
     except Exception as e:
-        return render_template_string("""
-        <!DOCTYPE html>
-        <html lang="ar" dir="rtl">
-        <head>
-            <meta charset="UTF-8">
-            <title>Star Bird Services</title>
-            <style>
-                body { background-color: #000; color: #fff; text-align: center; padding-top: 100px; font-family: sans-serif; }
-            </style>
-        </head>
-        <body>
-            <h1>مرحباً بك في موقع ستار بيرد للخدمات 🚀</h1>
-            <p>الموقع يقدم خدمات حمايه اجور و تامين!</p>
-        </body>
-        </html>
-        """)
+        return "مرحباً بك في خدمات تأمين وحماية الأجور - الموقع قيد التحديث"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
