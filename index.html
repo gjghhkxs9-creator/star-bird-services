@@ -22,6 +22,8 @@
             color: #00ffcc;
             font-size: 2.5rem;
             margin-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
         }
         p.subtitle {
             color: #aaaaaa;
@@ -55,19 +57,82 @@
             font-size: 0.95rem;
             line-height: 1.6;
         }
-        footer {
-            margin-top: 60px;
-            padding: 20px;
+        .contact-section {
             background-color: #141414;
+            margin: 60px auto 0;
+            padding: 40px 20px;
+            border-top: 2px solid #222;
+        }
+        .contact-form {
+            max-width: 500px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .contact-form input, .contact-form textarea {
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: #1e1e1e;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .contact-form button {
+            background-color: #25d366;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .contact-form button:hover {
+            background-color: #1ebc57;
+        }
+        .contact-info {
+            margin-top: 20px;
+            color: #bbb;
+            font-size: 1.1rem;
+        }
+        /* لوحة التحكم المخفية */
+        #admin-panel {
+            display: none;
+            background-color: #111;
+            border: 2px solid #00ffcc;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: right;
+        }
+        #admin-panel h2 {
+            color: #00ffcc;
+            text-align: center;
+        }
+        .order-item {
+            background-color: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #0b0b0b;
             color: #777;
             font-size: 0.9rem;
+            border-top: 1px solid #1a1a1a;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Star Bird Services</h1>
+        <h1 id="site-title">Star Bird Services</h1>
         <p class="subtitle">منصتك الموثوقة لتأمين وحماية الأجور والمستحقات على مدار 24 ساعة</p>
     </header>
 
@@ -86,9 +151,93 @@
         </div>
     </div>
 
+    <!-- لوحة التحكم المخفية للإنارة الإدارية -->
+    <div id="admin-panel">
+        <h2>🛠️ إعدادات الإدارة - قائمة الطلبات</h2>
+        <div id="orders-list">
+            <p style="text-align:center; color:#888;">لا توجد طلبات مسجلة حالياً.</p>
+        </div>
+        <button onclick="clearOrders()" style="background:#ff3333; color:#fff; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; margin-top:10px;">مسح كافة الطلبات</button>
+    </div>
+
+    <div class="contact-section">
+        <h2>تواصل معنا عبر الواتساب</h2>
+        <p class="contact-info">💬 واتساب المباشر: <span dir="ltr">+966 53 980 0751</span></p>
+
+        <form class="contact-form" onsubmit="sendToWhatsApp(event)">
+            <input type="text" id="cust-name" placeholder="اسمك الكريم" required>
+            <input type="text" id="cust-phone" placeholder="رقم الجوال" required>
+            <textarea id="cust-msg" rows="4" placeholder="اكتب تفاصيل استفسارك أو طلبك هنا..." required></textarea>
+            <button type="submit">📲 إرسال الطلب عبر الواتساب</button>
+        </form>
+    </div>
+
     <footer>
         جميع الحقوق محفوظة © Star Bird Services 2026
     </footer>
+
+    <script>
+        // إرسال الطلب إلى الواتساب وحفظه في الإدارة
+        function sendToWhatsApp(e) {
+            e.preventDefault();
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const msg = document.getElementById('cust-msg').value;
+
+            // حفظ الطلب في الذاكرة للإدارة
+            let orders = JSON.parse(localStorage.getItem('starbird_orders') || '[]');
+            orders.push({ name, phone, msg, date: new Date().toLocaleString('ar-SA') });
+            localStorage.setItem('starbird_orders', JSON.stringify(orders));
+
+            // تجهيز نص الواتساب
+            const whatsappNum = "966539800751";
+            const fullText = `مرحباً، طلب جديد من موقع Star Bird Services:\n\n👤 *الاسم:* ${name}\n📞 *الرقم:* ${phone}\n💬 *الرسالة:* ${msg}`;
+            const url = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(fullText)}`;
+            
+            window.open(url, '_blank');
+        }
+
+        // إظهار الطلبات في لوحة الإدارة
+        function renderOrders() {
+            const listDiv = document.getElementById('orders-list');
+            let orders = JSON.parse(localStorage.getItem('starbird_orders') || '[]');
+            if (orders.length === 0) {
+                listDiv.innerHTML = '<p style="text-align:center; color:#888;">لا توجد طلبات مسجلة حالياً.</p>';
+                return;
+            }
+            listDiv.innerHTML = orders.map((ord, idx) => `
+                <div class="order-item">
+                    <strong style="color:#00ffcc;">#${idx + 1} - ${ord.name}</strong> (${ord.phone})<br>
+                    <small style="color:#777;">🗓️ ${ord.date}</small>
+                    <p style="margin:5px 0 0; color:#ddd;">${ord.msg}</p>
+                </div>
+            `).join('');
+        }
+
+        function clearOrders() {
+            if (confirm('هل أنت تأكد من مسح جميع الطلبات المخزنة؟')) {
+                localStorage.removeItem('starbird_orders');
+                renderOrders();
+            }
+        }
+
+        // تفاعل الضغط 5 مرات على اسم الموقع لفتح لوحة التحكم المخفية
+        let clickCount = 0;
+        document.getElementById('site-title').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 5) {
+                clickCount = 0;
+                const pass = prompt('أدخل كلمة المرور لدخول إعدادات الإدارة:');
+                if (pass === 'ستار بيرد') {
+                    document.getElementById('admin-panel').style.display = 'block';
+                    renderOrders();
+                    window.scrollTo({ top: document.getElementById('admin-panel').offsetTop, behavior: 'smooth' });
+                } else {
+                    alert('كلمة المرور غير صحيحة!');
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
